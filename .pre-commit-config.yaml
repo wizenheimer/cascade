@@ -1,0 +1,32 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-added-large-files
+      # - id: no-commit-to-branch
+      - id: check-toml
+      - id: check-yaml
+      - id: check-json
+      - id: check-xml
+        exclude: \.json$
+        files: \.py$
+      - id: mixed-line-ending
+  - repo: https://github.com/dnephin/pre-commit-golang
+    rev: v0.5.1
+    hooks:
+      - id: go-fmt
+      - id: go-imports
+      - id: no-go-testing
+      - id: golangci-lint
+      - id: go-cyclo
+        args: [-over=15]
+      - id: go-unit-tests
+      - id: go-mod-tidy
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v9.16.0
+    hooks:
+      - id: commitlint
+        stages: [commit-msg]
+        additional_dependencies: ["@commitlint/config-conventional"]
