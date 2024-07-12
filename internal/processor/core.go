@@ -10,15 +10,24 @@ import (
 	"github.com/wizenheimer/cascade/internal/logger"
 )
 
+// Stream the response via Server Sent Event
 func Process(c echo.Context, callback kubernetesCallback) error {
 	c.Response().Header().Set(echo.HeaderContentType, "text/event-stream")
 	c.Response().Header().Set("Cache-Control", "no-cache")
 	c.Response().Header().Set("Connection", "keep-alive")
 	c.Response().WriteHeader(http.StatusOK)
 
-	logChan := make(chan logger.LogEntry, 100)
-	logger := logger.CreateLogger(logChan)
-	defer logger.Sync()
+	loggerWithChan := logger.LoggerPool.Get().(*logger.LoggerWithChannel)
+	defer func() {
+		// Clear the channel before putting the logger back in the pool
+		for len(loggerWithChan.LogChan) > 0 {
+			<-loggerWithChan.LogChan
+		}
+		logger.LoggerPool.Put(loggerWithChan)
+	}()
+
+	logger := loggerWithChan.Logger
+	logChan := loggerWithChan.LogChan
 
 	requestID := c.Request().Header.Get("X-Request-ID")
 	if requestID == "" {

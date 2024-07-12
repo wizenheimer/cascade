@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/wizenheimer/cascade/internal/config"
 	"go.uber.org/zap"
 )
 
@@ -16,12 +18,15 @@ func NewAPIServer(logger *zap.Logger) APIServer {
 	// Create Echo
 	e := echo.New()
 
+	// Add request ID middleware
+	e.Use(middleware.RequestID())
+
 	// Inject Routes
 	injectRoutes(e)
 
 	// Create a server
 	s := http.Server{
-		Addr:    ":8080",
+		Addr:    config.SERVER_PORT,
 		Handler: e,
 	}
 

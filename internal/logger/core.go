@@ -6,11 +6,11 @@ import (
 )
 
 // Instantiate a logger
-func CreateLogger(logChan chan<- LogEntry) *zap.Logger {
+func CreateLogger() *LoggerWithChannel {
+	logChan := make(chan LogEntry, 100)
 	config := zap.NewProductionConfig()
 	config.OutputPaths = []string{"stdout"}
 
-	// Attach a hook that parses the logs into server side events
 	hook := func(entry zapcore.Entry) error {
 		logEntry := LogEntry{
 			Timestamp: entry.Time.UnixNano() / 1e6,
@@ -19,17 +19,15 @@ func CreateLogger(logChan chan<- LogEntry) *zap.Logger {
 		}
 		select {
 		case logChan <- logEntry:
-			// Relay the logs back to the client
 		default:
 			// Channel full, log dropped
 		}
 		return nil
 	}
 
-	logger, err := config.Build(zap.Hooks(hook))
-	if err != nil {
-		panic(err.Error())
+	logger, _ := config.Build(zap.Hooks(hook))
+	return &LoggerWithChannel{
+		Logger:  logger,
+		LogChan: logChan,
 	}
-
-	return logger
 }
