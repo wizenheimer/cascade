@@ -5,7 +5,7 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-added-large-files
-      # - id: no-commit-to-branch
+      - id: no-commit-to-branch
       - id: check-toml
       - id: check-yaml
       - id: check-json
