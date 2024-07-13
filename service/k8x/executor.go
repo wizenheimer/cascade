@@ -1,8 +1,11 @@
 package k8x
 
 import (
+	"context"
 	"os"
 
+	"github.com/hashicorp/go-multierror"
+	"go.uber.org/zap"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -23,10 +26,11 @@ type Executor struct {
 	Runtime *RuntimeConfig
 }
 
-func New(cc *ClusterConfig, tc *TargetConfig, rc *RuntimeConfig) *Executor {
+// Initializes an executor instance
+func CreateExecutor(cc *ClusterConfig, tc *TargetConfig, rc *RuntimeConfig) (*Executor, error) {
 	client, err := getK8Client(cc)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	recorder := getEventRecorder(client)
@@ -36,7 +40,7 @@ func New(cc *ClusterConfig, tc *TargetConfig, rc *RuntimeConfig) *Executor {
 		EventRecorder: recorder, // Event Recorder Instance
 		Target:        tc,
 		Runtime:       rc,
-	}
+	}, nil
 }
 
 // Returns Kubernetes Client
@@ -67,4 +71,30 @@ func getEventRecorder(client *kubernetes.Clientset) record.EventRecorderLogger {
 	broadcaster.StartRecordingToSink(&typedcorev1.EventSinkImpl{Interface: client.CoreV1().Events(v1.NamespaceAll)})
 	recorder := broadcaster.NewRecorder(scheme.Scheme, v1.EventSource{Component: "thanos"})
 	return recorder
+}
+
+// Execute the chaos engineering scenario
+// Return an error incase, pods deletion got interupped
+func (executor *Executor) Execute(ctx context.Context, logger *zap.Logger) error {
+	// Identify the pods to kill
+	podsToKill, err := executor.SelectPodsToKill(ctx)
+	if err != nil {
+		return err
+	}
+	if err == errPodNotFound {
+		logger.Debug(podNotFound)
+		return nil
+	}
+
+	// Trigger deletion
+	var result *multierror.Error
+	for _, victim := range podsToKill {
+		err = executor.DeletePod(victim, ctx)
+		if err != nil {
+			logger.Error("failed to delete pod", zap.Any("pod", victim.Name))
+			result = multierror.Append(result, err)
+		}
+	}
+
+	return result.ErrorOrNil()
 }

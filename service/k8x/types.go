@@ -1,13 +1,16 @@
 package k8x
 
 import (
+	"errors"
 	"time"
+
+	"k8s.io/apimachinery/pkg/labels"
 )
 
 // Determines which resources to target for chaos engineering scenarios
 type TargetConfig struct {
 	// A namespace or a set of namespaces to restrict thanoskube
-	Namespaces string `json:"namespaces"`
+	Namespaces labels.Selector `json:"namespaces"`
 	// A string to select which pods to kill
 	IncludedPodNames string `json:"includedPodNames"`
 	// A string to select nodes, pods within the selected nodes will be killed
@@ -66,4 +69,9 @@ type RuntimeConfig struct {
 	Ratio float64
 	// Pod termination strategy
 	Mode ExecutionMode
+	// TODO: Termination Priority
+	// Priority ExecutionPriority
 }
+
+var podNotFound = "pod not found"
+var errPodNotFound = errors.New(podNotFound)
