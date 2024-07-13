@@ -3,31 +3,31 @@ package rest
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/wizenheimer/cascade/internal/processor"
-	"github.com/wizenheimer/cascade/service/kubernetes"
+	"github.com/wizenheimer/cascade/service/k8x"
 )
 
 func createScenario(c echo.Context) error {
-	return processor.Process(c, kubernetes.Scenario)
+	return processor.Process(c, k8x.Scenario)
 }
 
 func listScenario(c echo.Context) error {
-	return processor.Process(c, kubernetes.Scenario)
+	return processor.Process(c, k8x.Scenario)
 }
 
 func detailScenatio(c echo.Context) error {
-	return processor.Process(c, kubernetes.Scenario)
+	return processor.Process(c, k8x.Scenario)
 }
 
 func patchScenario(c echo.Context) error {
-	return processor.Process(c, kubernetes.Scenario)
+	return processor.Process(c, k8x.Scenario)
 }
 
 func createSession(c echo.Context) error {
-	return processor.Process(c, kubernetes.Session)
+	return processor.Process(c, k8x.Session)
 }
 
 func listSession(c echo.Context) error {
-	return processor.Process(c, kubernetes.Session)
+	return processor.Process(c, k8x.Session)
 }
 
 // Inject routes onto the instance

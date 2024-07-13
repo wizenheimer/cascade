@@ -44,3 +44,6 @@ Temporary Items
 # Go workspace file
 go.work
 go.work.sum
+
+# Playground
+playground
