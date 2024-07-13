@@ -72,7 +72,7 @@ func getK8Client(cc *ClusterConfig) (*kubernetes.Clientset, error) {
 func getEventRecorder(client *kubernetes.Clientset) record.EventRecorderLogger {
 	broadcaster := record.NewBroadcaster()
 	broadcaster.StartRecordingToSink(&typedcorev1.EventSinkImpl{Interface: client.CoreV1().Events(v1.NamespaceAll)})
-	recorder := broadcaster.NewRecorder(scheme.Scheme, v1.EventSource{Component: "thanos"})
+	recorder := broadcaster.NewRecorder(scheme.Scheme, v1.EventSource{Component: "cascade"})
 	return recorder
 }
 

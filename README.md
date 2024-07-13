@@ -5,13 +5,9 @@ But what if I told you that failures could be a feature and not a bug. Enter Cas
 
 Cascade pushes your deployments to the brink and helps you patch them up. All before your users even notice.
 
-Think about it:
-- What happens if your database suddenly decides to take a do a replication de-tour?
-- If a critical service goes MIA, does your system curl up and cry, or does it power through?
-
-These aren't hypotheticals. They're typical Tuesdays.
 
 But Cascade doesn't just break things and leave you to pick up the pieces. Oh no. We're not savages. (well, maybe a little).
+
 Cascade lets you simulate these scenarios in a controlled environment. Crash and burn all you want - no real users harmed in the process.
 
 Netflix uses chaos engineering to ensure your binge-watching is never interrupted.
@@ -19,6 +15,8 @@ Zomato uses it to keep your impulsive orders flowing 24/7.
 Even NASA uses it. Yeah, freaking NASA boi.
 
 If it's good enough for rocket scientists, it's prolly good enough for your app too.
+
+Checkout the [docs](docs.md) here.
 
 ## Principles
 
