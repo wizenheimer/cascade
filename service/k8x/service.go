@@ -4,6 +4,7 @@ import (
 	"context"
 
 	v1 "k8s.io/api/core/v1"
+	policyv1 "k8s.io/api/policy/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -21,7 +22,8 @@ func (executor *Executor) SelectPodsToKill(ctx context.Context) ([]v1.Pod, error
 	// Prepare a Random Pod Slice
 	pods = RandomPodSlice(pods, executor.Runtime.Ratio)
 
-	// TODO: Reorder the Pods based on executor.Runtime.Strategy
+	// Reorder the Pods
+	reorderPod(pods, executor.Runtime.Order)
 
 	return pods, nil
 }
@@ -48,18 +50,22 @@ func (executor *Executor) SelectCandidatePods(ctx context.Context) ([]v1.Pod, er
 	return filteredPods, nil
 }
 
-// Trigger Pod Deletion
+// Trigger Pod Deletion based on Termination Strategy
 func (executor *Executor) DeletePod(pod v1.Pod, ctx context.Context) error {
 	if executor.Runtime.Mode == DryRun {
 		return nil
 	}
 
-	// TODO: Add Eviction based APIs
-	opts := metav1.DeleteOptions{}
-	err := executor.Client.CoreV1().Pods(pod.Namespace).Delete(ctx, pod.Name, opts)
-	if err != nil {
-		return err
+	opts := metav1.DeleteOptions{
+		GracePeriodSeconds: &executor.Runtime.Grace,
 	}
 
-	return nil
+	if executor.Runtime.Mode == Evict {
+		return executor.Client.CoreV1().Pods(pod.Namespace).Evict(ctx, &policyv1.Eviction{
+			ObjectMeta:    metav1.ObjectMeta{Namespace: pod.Namespace, Name: pod.Name},
+			DeleteOptions: &opts,
+		})
+	}
+
+	return executor.Client.CoreV1().Pods(pod.Namespace).Delete(ctx, pod.Name, opts)
 }
