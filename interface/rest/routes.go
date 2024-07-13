@@ -1,33 +1,34 @@
 package rest
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/wizenheimer/cascade/internal/processor"
-	"github.com/wizenheimer/cascade/service/k8x"
 )
 
 func createScenario(c echo.Context) error {
-	return processor.Process(c, k8x.Scenario)
+	return c.NoContent(http.StatusOK) // TODO
 }
 
 func listScenario(c echo.Context) error {
-	return processor.Process(c, k8x.Scenario)
+	return c.NoContent(http.StatusOK) // TODO
 }
 
 func detailScenatio(c echo.Context) error {
-	return processor.Process(c, k8x.Scenario)
+	return c.NoContent(http.StatusOK) // TODO
 }
 
 func patchScenario(c echo.Context) error {
-	return processor.Process(c, k8x.Scenario)
+	return c.NoContent(http.StatusOK) // TODO
 }
 
 func createSession(c echo.Context) error {
-	return processor.Process(c, k8x.Session)
+	return processor.Process(c)
 }
 
 func listSession(c echo.Context) error {
-	return processor.Process(c, k8x.Session)
+	return c.NoContent(http.StatusOK) // TODO
 }
 
 // Inject routes onto the instance
