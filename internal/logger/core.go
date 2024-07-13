@@ -1,6 +1,10 @@
 package logger
 
 import (
+	"encoding/json"
+	"fmt"
+	"time"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -30,4 +34,22 @@ func CreateLogger() *LoggerWithChannel {
 		Logger:  logger,
 		LogChan: logChan,
 	}
+}
+
+// Manually parse log for streaming it back to client
+func ParseLog(level, msg string) ([]byte, error) {
+	logEntry := LogEntry{
+		Timestamp: time.Now().Unix(),
+		Level:     level,
+		Message:   msg,
+	}
+	// Serialize logEntry to JSON
+	data, err := json.Marshal(logEntry)
+	if err != nil {
+		return nil, err
+	}
+
+	data = []byte(fmt.Sprintf("data: %s\n\n", data))
+
+	return data, nil
 }
