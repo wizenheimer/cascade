@@ -3,6 +3,7 @@ package k8x
 import (
 	"fmt"
 	"math/rand/v2"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -69,6 +70,19 @@ func ParseRuntimeConfig(c echo.Context) (*RuntimeConfig, error) {
 		modeStr = config.MODE
 	}
 
+	graceStr := c.FormValue("grace")
+	if graceStr == "" {
+		graceStr = config.GRACE
+	}
+
+	orderStr := c.FormValue("ordering")
+	if orderStr == "" {
+		orderStr = config.ORDERING
+	}
+
+	// Parse Ordering
+	ordering := parseOrderingStrategy(orderStr)
+
 	// Parse interval
 	interval, err := time.ParseDuration(intervalStr)
 	if err != nil {
@@ -81,6 +95,12 @@ func ParseRuntimeConfig(c echo.Context) (*RuntimeConfig, error) {
 		return nil, err
 	}
 
+	// Parse grace
+	grace, err := strconv.ParseInt(graceStr, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
 	// Convert modeStr to ExecutionMode enum
 	mode := ParseExecutionMode(modeStr)
 
@@ -88,6 +108,8 @@ func ParseRuntimeConfig(c echo.Context) (*RuntimeConfig, error) {
 		Interval: interval,
 		Ratio:    ratio,
 		Mode:     mode,
+		Grace:    grace,
+		Order:    ordering,
 	}, nil
 }
 
@@ -274,4 +296,81 @@ func RandomPodSlice(pods []v1.Pod, percentageToKill float64) []v1.Pod {
 	rand.Shuffle(len(pods), func(i, j int) { pods[i], pods[j] = pods[j], pods[i] })
 	res := pods[0:count]
 	return res
+}
+
+// Calculates the Pod Deletion Cost
+// Reference: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/#pod-deletion-cost
+func getPodDeletionCost(pod v1.Pod) int32 {
+	costString, present := pod.ObjectMeta.Annotations["controller.kubernetes.io/pod-deletion-cost"]
+	if !present {
+		return 0
+	}
+	// per k8s doc: invalid values should be rejected by the API server
+	cost, _ := strconv.ParseInt(costString, 10, 32)
+	return int32(cost)
+}
+
+// ========================
+//
+//	Pod Sorting Strategy
+//
+// ========================
+
+// Reorder Pods based on the ordering strategy
+func reorderPod(pods []v1.Pod, strategy OrderingStrategy) {
+	switch strategy {
+	case Random:
+		randomOrdering(pods)
+	case Default:
+		defaultOrdering(pods)
+	case Cost:
+		costBasedOrdering(pods)
+	case Youngest:
+		youngestFirstOrdering(pods)
+	case Oldest:
+		oldestFirstOrdering(pods)
+	default:
+		randomOrdering(pods)
+	}
+}
+
+// Doesn't order the pod
+func defaultOrdering([]v1.Pod) {}
+
+// Randomizes the ordering
+func randomOrdering(pods []v1.Pod) {
+	rand.Shuffle(len(pods), func(i, j int) { pods[i], pods[j] = pods[j], pods[i] })
+}
+
+// Older pods rank higher
+func oldestFirstOrdering(pods []v1.Pod) {
+	sort.Slice(pods, func(i, j int) bool {
+		if pods[i].Status.StartTime == nil {
+			return false
+		}
+		if pods[j].Status.StartTime == nil {
+			return true
+		}
+		return pods[i].Status.StartTime.Unix() < pods[j].Status.StartTime.Unix()
+	})
+}
+
+// Younger pods rank higher
+func youngestFirstOrdering(pods []v1.Pod) {
+	sort.Slice(pods, func(i, j int) bool {
+		if pods[i].Status.StartTime == nil {
+			return false
+		}
+		if pods[j].Status.StartTime == nil {
+			return true
+		}
+		return pods[j].Status.StartTime.Unix() < pods[i].Status.StartTime.Unix()
+	})
+}
+
+// Pods with lower deletion cost are ranked higher
+func costBasedOrdering(pods []v1.Pod) {
+	sort.Slice(pods, func(i, j int) bool {
+		return getPodDeletionCost(pods[i]) < getPodDeletionCost(pods[j])
+	})
 }
