@@ -24,10 +24,12 @@ type Executor struct {
 	Target *TargetConfig
 	// Determine the Runtime for Chaos Scenarios
 	Runtime *RuntimeConfig
+	// Client side logger
+	Logger *zap.Logger
 }
 
 // Initializes an executor instance
-func CreateExecutor(cc *ClusterConfig, tc *TargetConfig, rc *RuntimeConfig) (*Executor, error) {
+func CreateExecutor(cc *ClusterConfig, tc *TargetConfig, rc *RuntimeConfig, logger *zap.Logger) (*Executor, error) {
 	client, err := getK8Client(cc)
 	if err != nil {
 		return nil, err
@@ -40,6 +42,7 @@ func CreateExecutor(cc *ClusterConfig, tc *TargetConfig, rc *RuntimeConfig) (*Ex
 		EventRecorder: recorder, // Event Recorder Instance
 		Target:        tc,
 		Runtime:       rc,
+		Logger:        logger,
 	}, nil
 }
 
@@ -75,14 +78,14 @@ func getEventRecorder(client *kubernetes.Clientset) record.EventRecorderLogger {
 
 // Execute the chaos engineering scenario
 // Return an error incase, pods deletion got interupped
-func (executor *Executor) Execute(ctx context.Context, logger *zap.Logger) error {
+func (executor *Executor) Execute(ctx context.Context) error {
 	// Identify the pods to kill
 	podsToKill, err := executor.SelectPodsToKill(ctx)
 	if err != nil {
 		return err
 	}
 	if err == errPodNotFound {
-		logger.Debug(podNotFound)
+		executor.Logger.Debug(podNotFound)
 		return nil
 	}
 
@@ -91,7 +94,7 @@ func (executor *Executor) Execute(ctx context.Context, logger *zap.Logger) error
 	for _, victim := range podsToKill {
 		err = executor.DeletePod(victim, ctx)
 		if err != nil {
-			logger.Error("failed to delete pod", zap.Any("pod", victim.Name))
+			executor.Logger.Error("failed to delete pod", zap.Any("pod", victim.Name))
 			result = multierror.Append(result, err)
 		}
 	}

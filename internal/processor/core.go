@@ -68,7 +68,7 @@ func Process(c echo.Context) error {
 	}
 
 	// Create executor
-	executor, err := k8x.CreateExecutor(cc, tc, rc)
+	executor, err := k8x.CreateExecutor(cc, tc, rc, logger)
 	if err != nil {
 		// Parse the log
 		data, err := log.ParseLog("error", err.Error())
@@ -93,12 +93,12 @@ func Process(c echo.Context) error {
 	// Start processing in a goroutine
 	go func(executor *k8x.Executor, sessionID string, ctx context.Context, next <-chan time.Time) {
 		for {
-			logger.Info("Chaos Session Triggered", zap.Any("Session", sessionID))
-			logger.Info("Chaos Scenario", zap.Any("Scenario", scenario))
+			executor.Logger.Info("Chaos Session Triggered", zap.Any("Session", sessionID))
+			executor.Logger.Info("Chaos Scenario", zap.Any("Scenario", scenario))
 
 			// Trigger Execution
-			if err = executor.Execute(ctx, logger); err != nil {
-				logger.Error(err.Error())
+			if err = executor.Execute(ctx); err != nil {
+				executor.Logger.Error(err.Error())
 			}
 
 			select {
