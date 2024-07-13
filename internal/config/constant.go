@@ -18,4 +18,8 @@ const (
 	SYNC = "true"
 
 	WATCH = "true"
+
+	GRACE = "1m"
+
+	ORDERING = "random"
 )
