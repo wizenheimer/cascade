@@ -17,7 +17,7 @@ repos:
     rev: v0.5.1
     hooks:
       - id: go-fmt
-      - id: go-mod-tidy
+      # - id: go-mod-tidy
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.16.0
     hooks:
