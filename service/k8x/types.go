@@ -61,16 +61,48 @@ func ParseExecutionMode(modeStr string) ExecutionMode {
 	}
 }
 
+// Determines the Pod Ordering Strategy
+type OrderingStrategy int
+
+const (
+	Random   OrderingStrategy = iota // Order the pods randomly
+	Default                          // Avoid reordering the pods
+	Cost                             // Lower cost pods are rank higher
+	Youngest                         // Younger pods are ranked higher
+	Oldest                           // Older pods are ranked higher
+)
+
+// ParseOrderingStrategy converts a string representation of OrderingStrategy to its enum value.
+func parseOrderingStrategy(orderingStr string) OrderingStrategy {
+	switch orderingStr {
+	case "random":
+		return Random
+	case "default":
+		return Default
+	case "cost":
+		return Cost
+	case "youngest":
+		return Youngest
+	case "oldest":
+		return Oldest
+	default:
+		// Default to Random
+		return Random
+	}
+}
+
 // Determine the Runtime Configurations for chaos engineering scenarios
 type RuntimeConfig struct {
 	// Interval between killing pods
 	Interval time.Duration
+	// Grace Time after which pods are terminated
+	Grace int64
 	// Ratio of pods to kill
 	Ratio float64
 	// Pod termination strategy
 	Mode ExecutionMode
-	// TODO: Termination Priority
-	// Priority ExecutionPriority
+	// Pod Ordering strategy
+	Order OrderingStrategy
 }
 
 var podNotFound = "pod not found"
