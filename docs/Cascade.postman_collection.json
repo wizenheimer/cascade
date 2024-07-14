@@ -1,0 +1,249 @@
+{
+	"info": {
+		"_postman_id": "28967dce-8cfe-457f-bd6b-5f6ec76081cc",
+		"name": "Cascade",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "32896671"
+	},
+	"item": [
+		{
+			"name": "Scenario",
+			"item": [
+				{
+					"name": "Create a Scenario",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "namespaces",
+									"value": "default",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "includedPodNames",
+									"value": "test-pod",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "includedNodeNames",
+									"value": "test-node",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "excludedPodNames",
+									"value": "prod-pod",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "healthcheck",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "kubeconfig",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "master",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "interval",
+									"value": "10m",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "ratio",
+									"value": "1",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "mode",
+									"value": "delete",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "synchronous",
+									"value": "true",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "watch",
+									"value": "true",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": "http://127.0.0.1:8080/scenario"
+					},
+					"response": []
+				},
+				{
+					"name": "List all Scenarios",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://127.0.0.1:8080/scenario"
+					},
+					"response": []
+				},
+				{
+					"name": "Detail a Scenario",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://127.0.0.1:8080/scenario/casper"
+					},
+					"response": []
+				},
+				{
+					"name": "Update a Scenario",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": "http://127.0.0.1:8080/scenario/casper"
+					},
+					"response": []
+				}
+			],
+			"description": "A Scenario organizes chaos experiments with specific configurations:\n\n- Target: Defines the resources (namespaces, pods, nodes) to target for chaos experiments.\n    \n- Runtime: Specifies runtime parameters such as interval, grace period, ratio, and execution modes.\n    \n- Interface: Determines how chaos events are handled, including synchronous/asynchronous execution and event logging options."
+		},
+		{
+			"name": "Session",
+			"item": [
+				{
+					"name": "Create a Session",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": "http://127.0.0.1:8080/session/casper"
+					},
+					"response": []
+				},
+				{
+					"name": "List out all Sessions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://127.0.0.1:8080/session/casper"
+					},
+					"response": []
+				}
+			],
+			"description": "A Session represents an active chaos experiment within a Scenario."
+		},
+		{
+			"name": "Chaos",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "namespaces",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "includedPodNames",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "includedNodeNames",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "excludedPodNames",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "healthcheck",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kubeconfig",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "master",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "interval",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "ratio",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "mode",
+							"value": "dry-run",
+							"type": "text"
+						},
+						{
+							"key": "grace",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "ordering",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "synchronous",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "watch",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": "http://127.0.0.1:8080/session/casper"
+			},
+			"response": []
+		}
+	]
+}
