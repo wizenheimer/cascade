@@ -47,3 +47,6 @@ go.work.sum
 
 # Playground
 playground
+
+# Environment
+.env
