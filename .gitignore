@@ -50,3 +50,4 @@ playground
 
 # Environment
 .env
+/src/tmp
