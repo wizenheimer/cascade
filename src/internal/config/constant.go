@@ -13,13 +13,9 @@ const (
 
 	RATIO = "0.5"
 
-	MODE = "delete"
-
-	SYNC = "true"
-
-	WATCH = "true"
+	MODE = "dry-run"
 
 	GRACE = "1m"
 
-	ORDERING = "random"
+	ORDERING = "oldest"
 )
