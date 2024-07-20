@@ -4,17 +4,26 @@ services:
       context: .
       target: development
     ports:
-      - "${APP_PORT}:8080"
+      - "${APP_PORT}:${HOST_PORT}"
     volumes:
       - .:/app
     env_file:
       - .env
     environment:
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-      - DB_PORT=${DB_PORT}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_ROOT_PASSWORD=${POSTGRES_ROOT_PASSWORD}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - SSL_MODE=${SSL_MODE}
+      - RUNTIME_INTERVAL=${RUNTIME_INTERVAL}
+      - RATIO=${RATIO}
+      - MODE=${MODE}
+      - GRACE=${GRACE}
+      - ORDERING=${ORDERING}
+      - HEALTH_CHECK_PORT=${HEALTH_CHECK_PORT}
+      - ENVIRONMENT=docker
     depends_on:
       - db
 
@@ -22,6 +31,7 @@ services:
     image: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./schema/init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
       - .env
     environment:
