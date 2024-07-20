@@ -5,11 +5,14 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/wizenheimer/cascade/internal/config"
+	"github.com/wizenheimer/cascade/service/database"
 	"go.uber.org/zap"
 )
 
@@ -30,11 +33,38 @@ func NewAPIServer(logger *zap.Logger) APIServer {
 		Handler: e,
 	}
 
+	// Load .env file incase of local development
+	if os.Getenv("ENVIRONMENT") != "docker" {
+		err := godotenv.Load("../.env")
+		if err != nil {
+			logger.Fatal("couldn't load .env file", zap.Any("error", err))
+		}
+	}
+	host := os.Getenv("POSTGRES_HOST")
+	user := os.Getenv("POSTGRES_USER")
+	password := os.Getenv("POSTGRES_PASSWORD")
+	dbname := os.Getenv("POSTGRES_DB")
+	sslMode := os.Getenv("SSL_MODE")
+	port, err := strconv.Atoi(os.Getenv("POSTGRES_PORT"))
+	if err != nil {
+		logger.Fatal("failed to convert port to int", zap.Any("error", err))
+	}
+
+	// Create Database Client
+	db, err := database.NewDatabaseClient(host, user, password, dbname, int32(port), sslMode)
+	if err != nil {
+		logger.Fatal("failed to initialize Database Client", zap.Any("error", err))
+	} else {
+		logger.Info("Connected to Database", zap.Any("host", host), zap.Any("user", user), zap.Any("dbname", dbname), zap.Any("port", port), zap.Any("sslMode", sslMode))
+	}
+
 	api := APIServer{
 		// Inject Server
 		server: &s,
 		// Inject Logger
-		logger: logger,
+		Logger: logger,
+		// Inject Database Client
+		DB: &db,
 	}
 
 	// Return Instance
@@ -49,7 +79,7 @@ func (api *APIServer) Serve() {
 	// Start server
 	go func() {
 		if err := api.server.ListenAndServe(); err != http.ErrServerClosed {
-			api.logger.Fatal(err.Error())
+			api.Logger.Fatal(err.Error())
 		}
 	}()
 
@@ -58,6 +88,6 @@ func (api *APIServer) Serve() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := api.server.Shutdown(ctx); err != nil {
-		api.logger.Error(err.Error())
+		api.Logger.Error(err.Error())
 	}
 }
