@@ -213,3 +213,111 @@ func parseNamespaces(str string) (labels.Selector, error) {
 	}
 	return selector, nil
 }
+
+func ParseConfigsFromContext(c echo.Context) (*k8x.ClusterConfig, *k8x.TargetConfig, *k8x.RuntimeConfig, error) {
+	// ========================
+	// Parse the Target Config
+	// ========================
+
+	namespacesStr := c.FormValue("namespaces")
+	namespaces, err := parseNamespaces(namespacesStr)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	includedPodNames := c.FormValue("includedPodNames")
+	includedNodeNames := c.FormValue("includedNodeNames")
+	excludedPodNames := c.FormValue("excludedPodNames")
+
+	targetConfig := &k8x.TargetConfig{
+		Namespaces:        namespaces,
+		IncludedPodNames:  includedPodNames,
+		IncludedNodeNames: includedNodeNames,
+		ExcludedPodNames:  excludedPodNames,
+	}
+
+	// ========================
+	// Parse the Cluster Config
+	// ========================
+
+	kubeconfig := c.FormValue("kubeconfig")
+	master := c.FormValue("master")
+	healthcheck := c.FormValue("healthcheck")
+	// Incase it's empty default it
+	if healthcheck == "" {
+		healthcheck = config.GetEnv("HEALTH_CHECK_PORT", config.HEALTH_CHECK_PORT)
+	}
+	origin := c.FormValue("origin")
+	if origin == "" {
+		origin = config.GetEnv("HOST", config.ORIGIN)
+	}
+
+	clusterConfig := &k8x.ClusterConfig{
+		Kubeconfig:  kubeconfig,
+		Master:      master,
+		Healthcheck: healthcheck,
+		Origin:      origin,
+	}
+
+	// ========================
+	// Parse the Runtime Config
+	// ========================
+
+	intervalStr := c.FormValue("interval")
+	if intervalStr == "" {
+		intervalStr = config.GetEnv("RUNTIME_INTERVAL", config.RUNTIME_INTERVAL)
+	}
+
+	ratioStr := c.FormValue("ratio")
+	if ratioStr == "" {
+		ratioStr = config.GetEnv("RATIO", config.RATIO)
+	}
+
+	modeStr := c.FormValue("mode")
+	if modeStr == "" {
+		modeStr = config.GetEnv("MODE", config.MODE)
+	}
+
+	graceStr := c.FormValue("grace")
+	if graceStr == "" {
+		graceStr = config.GetEnv("GRACE", config.GRACE)
+	}
+
+	orderStr := c.FormValue("ordering")
+	if orderStr == "" {
+		orderStr = config.GetEnv("ORDERING", config.ORDERING)
+	}
+
+	// Parse Ordering
+	ordering := k8x.ParseOrderingStrategy(orderStr)
+
+	// Parse interval
+	interval, err := time.ParseDuration(intervalStr)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// Parse ratio
+	ratio, err := strconv.ParseFloat(ratioStr, 64)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// Parse grace
+	grace, err := strconv.ParseInt(graceStr, 10, 64)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	mode := k8x.ParseExecutionMode(modeStr)
+
+	runtimeConfig := &k8x.RuntimeConfig{
+		Interval: interval,
+		Ratio:    ratio,
+		Mode:     mode,
+		Grace:    grace,
+		Order:    ordering,
+	}
+
+	return clusterConfig, targetConfig, runtimeConfig, nil
+}
