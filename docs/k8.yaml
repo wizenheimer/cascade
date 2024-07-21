@@ -1,0 +1,10 @@
+# Defines the cluster attributes for the given chaos experiment
+cluster:
+  # Path to the kubeconfig file
+  kubeconfig: "/path/to/kubeconfig"
+  # Path to the master configuration file
+  master: "https://master.example.com"
+  # Type of origin, could be one of the following: host, cluster, defaults to host
+  origin: host
+  # Health check port for the pods
+  healthcheck: ":8080"
