@@ -106,3 +106,14 @@ func (c Client) GetScenarioByID(ctx context.Context, scenarioID string) ([]model
 	result := c.DB.Select("scenario_name", "version", "description", "created_at").Where("scenario_id = ?", scenarioID).Find(&scenarios).Order("version DESC")
 	return scenarios, result.Error
 }
+
+// GetScenarioByIDByVersion returns a scenario by its ID and version
+func (c Client) GetScenarioByIDByVersion(ctx context.Context, scenarioID string, version int) (models.Scenario, error) {
+	var scenario models.Scenario
+
+	result := c.DB.Select("scenario_name", "version", "description", "created_at").
+		Where("scenario_id = ?", scenarioID).
+		Where("version = ?", version).
+		First(&scenario)
+	return scenario, result.Error
+}

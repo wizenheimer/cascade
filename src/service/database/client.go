@@ -21,6 +21,7 @@ type DatabaseClient interface {
 	UpdateScenario(ctx context.Context, scenarioID string, updatedScenario *models.Scenario) (*models.Scenario, error)
 	DeleteScenario(ctx context.Context, scenarioID string) error
 	GetScenarioByID(ctx context.Context, scenarioID string) ([]models.Scenario, error)
+	GetScenarioByIDByVersion(ctx context.Context, scenarioID string, version int) (models.Scenario, error)
 	// Listing Methods for Scenarios
 	ListScenarios(ctx context.Context) ([]models.Scenario, error)
 	ListScenariosByTeamID(ctx context.Context, teamID string) ([]models.Scenario, error)
