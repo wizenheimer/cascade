@@ -21,3 +21,10 @@ const (
 
 	ORIGIN = "host"
 )
+
+// CLI Defaults
+const (
+	FILE_NAME = "scenario.yaml" // Default file name
+
+	OUTPUT_FOLDER = "." // Current directory
+)
