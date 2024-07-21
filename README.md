@@ -90,6 +90,147 @@ Cluster-wide Disruptions*:
 
 *WIP
 
+## CLI
+
+Cascade CLI is a powerful tool for orchestrating chaos engineering experiments in Kubernetes clusters. It provides an intuitive interface for creating, managing, and executing chaos scenarios, helping you build more resilient systems.
+
+## Usage
+
+### Building the CLI
+
+To build the Cascade CLI, ensure you clone the repo and then run:
+
+```bash
+make cli
+```
+
+This compiles and builds the Cascade CLI
+
+### Starting the API Server
+
+To start the API server capable of triggering chaos engineering tests on any given Kubernetes cluster, use:
+
+```bash
+cascade serve start
+```
+
+This command initializes the server, allowing you to interact with it via API calls or other Cascade CLI commands.
+
+### Stopping the API Server
+
+To stop the API server and clean up resources, use:
+
+```bash
+cascade serve stop
+```
+
+This command gracefully shuts down the server and removes any associated Docker containers.
+
+### Creating a Chaos Scenario
+
+To create a new chaos engineering scenario, run:
+
+```bash
+cascade create
+```
+This interactive command walks you through the process of defining a chaos scenario, including target selection, fault injection parameters, and execution strategies.
+
+### Executing a Chaos Scenario
+
+To execute an existing chaos scenario in a stateful manner use the API or use CLI for stateful runs:
+
+```bash
+cascade exec
+```
+This command guides you through selecting and triggering a predefined chaos engineering scenario on your target Kubernetes cluster.
+
+## Configuration
+
+Cascade CLI uses a YAML configuration file to store settings and scenario definitions. By default, it looks for a `config.yaml` file in the current directory.
+
+Example configuration:
+
+```yaml
+scenario:
+  # Name of the chaos experiment
+  id: scenario
+  # Description of the chaos experiment
+  description: this is a sample scenario
+# Defines the targets for chaos experiment
+target:
+  # Namespace or set of namespaces to target
+  namespaces: test
+  # Pods would become chaos experiment target if they contain the given string in their name
+  includedPodNames: chaos
+  # Pods would not become chaos experiment target if they reside on a node which contain the given string in their name
+  includedNodeNames: chaos
+  # Pods would be spared from chaos experiment if they contain the given string in their pod name
+  excludedPodNames: chaos
+# Defines the session attributes for the given chaos experiment
+runtime:
+  # Intervals at which the chaos experiments are to be triggered, defaults to 10m
+  interval: 10m
+  # The grace time before the chaos experiment starts, defaults to 1m
+  grace: 1m
+  # The execution strategy for the chaos experiment, options include evict, delete, dry-run, defaults to delete
+  mode: dry-run
+  # Pod ordering strategy for chaos experiments, options include oldest, youngest, cost, random, defaults to random
+  ordering: default
+  # Ratio of candidate pods to be targeted for chaos experiment, defaults to 0.5
+  ratio: 0.5
+# Defines the cluster attributes for the given chaos experiment
+cluster:
+  # Path to the kubeconfig file
+  kubeconfig: "/path/to/kubeconfig"
+  # Path to the master configuration file
+  master: "https://master.example.com"
+  # Type of origin, could be one of the following: host, cluster, defaults to host
+  origin: host
+  # Health check port for the pods
+  healthcheck: ":8080"
+```
+
+## Dockerfile
+
+This section provides an overview of the Dockerfile for cascade.
+
+### Purpose
+The Dockerfile is used to define the instructions for building a Docker image. It specifies the base image, installs dependencies, sets environment variables, and configures the container.
+
+We utilize a multi-stage build for both development and production environments. The development stage includes auto-reload functionality backed by air, allowing for seamless code changes during development. Additionally, we have a Docker Compose configuration that includes a PostgreSQL container for database management.
+
+
+
+### Usage
+To build the Docker image for development, navigate to the directory containing the Dockerfile and run the following command:
+
+```bash
+docker build --target development -t cascade:dev .
+```
+
+To build the Docker image for production, use the following command:
+
+```bash
+docker build --target production -t cascade:prod .
+```
+
+To use the docker compose
+
+```bash
+docker compose up -d --build
+```
+
+For compose teardown
+
+```bash
+docker compose down -v
+```
+
+### Customization
+Feel free to modify the Dockerfile to suit your specific needs. You can add additional dependencies, configure ports, or include any other necessary instructions.
+
+### Maintenance
+Please ensure that the Dockerfile is kept up to date with any changes or updates to your application. Regularly review and test the Dockerfile to ensure it builds the desired image correctly.
 
 ## Contributing
 
