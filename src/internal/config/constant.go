@@ -18,4 +18,6 @@ const (
 	GRACE = "1m"
 
 	ORDERING = "oldest"
+
+	ORIGIN = "host"
 )
