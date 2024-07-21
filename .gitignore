@@ -51,3 +51,6 @@ playground
 # Environment
 .env
 /src/tmp
+
+# Cascade CLI
+cascade
