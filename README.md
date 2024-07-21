@@ -92,6 +92,8 @@ Cluster-wide Disruptions*:
 
 ## CLI
 
+![Cascade](media/cli.gif)
+
 Cascade CLI is a powerful tool for orchestrating chaos engineering experiments in Kubernetes clusters. It provides an intuitive interface for creating, managing, and executing chaos scenarios, helping you build more resilient systems.
 
 ## Usage
