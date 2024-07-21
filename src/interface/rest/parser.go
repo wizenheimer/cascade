@@ -49,6 +49,32 @@ func ParseDBScenario(scenario models.Scenario) (*k8x.TargetConfig, *k8x.RuntimeC
 	return tc, rc, nil
 }
 
+func ParseYAMLConfigToScenario(cfg *Config) (*models.Scenario, error) {
+	scenario := models.Scenario{
+		Description: cfg.Scenario.Description,
+		Namespaces:  cfg.Target.Namespaces,
+	}
+
+	scenario.IncludedPodNames = cfg.Target.IncludedPodNames
+	scenario.IncludedNodeNames = cfg.Target.IncludedNodeNames
+	scenario.ExcludedPodNames = cfg.Target.ExcludedPodNames
+
+	scenario.Interval = cfg.Runtime.Interval
+	scenario.Grace = cfg.Runtime.Grace
+	scenario.Mode = cfg.Runtime.Mode
+	scenario.Ordering = cfg.Runtime.Ordering
+
+	ratioStr := cfg.Runtime.Ratio
+	ratio, err := strconv.ParseFloat(ratioStr, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	scenario.Ratio = ratio
+
+	return &scenario, nil
+}
+
 // Parse Target Configurations
 func ParseTargetConfig(cfg *Config) (*k8x.TargetConfig, error) {
 	namespaces, err := parseNamespaces(cfg.Target.Namespaces)

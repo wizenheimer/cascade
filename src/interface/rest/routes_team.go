@@ -7,7 +7,7 @@ import (
 )
 
 func (client *APIServer) CreateTeam(c echo.Context) error {
-	// TODO: Create a Team
+	// Create a Team
 	return c.NoContent(http.StatusOK) // TODO
 }
 
