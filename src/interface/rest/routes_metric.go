@@ -7,6 +7,10 @@ import (
 )
 
 func (client *APIServer) GetMetrics(c echo.Context) error {
-	// TODO: Get Metrics for the given Scenario via Query Params
-	return c.NoContent(http.StatusOK) // TODO
+	scenarioStr := c.Param("scenario")
+	metrics, err := client.DB.GetSessionMetrics(c.Request().Context(), scenarioStr)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, metrics)
 }
