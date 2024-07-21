@@ -18,14 +18,23 @@ import (
 
 // Initialize API Instance
 func NewAPIServer(logger *zap.Logger) APIServer {
+	db, err := initalizeDBClient(logger)
+	if err != nil {
+		logger.Fatal("failed to initialize Database Client", zap.Any("error", err))
+	}
+
+	api := APIServer{
+		// Inject Logger
+		Logger: logger,
+		// Inject Database Client
+		DB: db,
+	}
+
 	// Create Echo
 	e := echo.New()
 
 	// Add request ID middleware
 	e.Use(middleware.RequestID())
-
-	// Inject Routes
-	injectRoutes(e)
 
 	// Create a server
 	s := http.Server{
@@ -33,6 +42,18 @@ func NewAPIServer(logger *zap.Logger) APIServer {
 		Handler: e,
 	}
 
+	// Inject Routes
+	api.injectRoutes(e)
+
+	// Inject Server
+	api.server = &s
+
+	// Return Instance
+	return api
+}
+
+// Initalize Database Client using environment variables
+func initalizeDBClient(logger *zap.Logger) (database.DatabaseClient, error) {
 	// Load .env file incase of local development
 	if os.Getenv("ENVIRONMENT") != "docker" {
 		err := godotenv.Load("../.env")
@@ -58,17 +79,7 @@ func NewAPIServer(logger *zap.Logger) APIServer {
 		logger.Info("Connected to Database", zap.Any("host", host), zap.Any("user", user), zap.Any("dbname", dbname), zap.Any("port", port), zap.Any("sslMode", sslMode))
 	}
 
-	api := APIServer{
-		// Inject Server
-		server: &s,
-		// Inject Logger
-		Logger: logger,
-		// Inject Database Client
-		DB: &db,
-	}
-
-	// Return Instance
-	return api
+	return db, nil
 }
 
 // Trigger Serving
