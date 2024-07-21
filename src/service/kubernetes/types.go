@@ -22,11 +22,13 @@ type TargetConfig struct {
 // Determines which clusters to target for chaos engineering scenarios
 type ClusterConfig struct {
 	// Path to a kubeconfig file
-	Kubeconfig string `json:"kubeconfig"`
+	Kubeconfig string `json:"kubeconfig" yaml:"kubeconfig"`
 	// The address of the Kubernetes cluster to target, if none looks under $HOME/.kube L
-	Master string `json:"master"`
+	Master string `json:"master" yaml:"master"`
 	// Listens this endpoint for healtcheck
-	Healthcheck string `json:"healthcheck"`
+	Healthcheck string `json:"healthcheck" yaml:"healthcheck"`
+	// Origin of the client
+	Origin string `json:"origin" yaml:"origin" default:"host"`
 }
 
 // Determines the Pod Termination Strategy

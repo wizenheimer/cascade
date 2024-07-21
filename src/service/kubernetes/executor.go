@@ -10,6 +10,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 	typedcorev1 "k8s.io/client-go/kubernetes/typed/core/v1"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/record"
 )
@@ -48,16 +49,27 @@ func CreateExecutor(cc *ClusterConfig, tc *TargetConfig, rc *RuntimeConfig, logg
 
 // Returns Kubernetes Client
 func getK8Client(cc *ClusterConfig) (*kubernetes.Clientset, error) {
-	// look for kubeconfig in home if not set
-	if cc.Kubeconfig == "" {
-		if _, err := os.Stat(clientcmd.RecommendedHomeFile); err == nil {
-			cc.Kubeconfig = clientcmd.RecommendedHomeFile
-		}
-	}
+	var config *rest.Config
+	var err error
 
-	config, err := clientcmd.BuildConfigFromFlags(cc.Master, cc.Kubeconfig)
-	if err != nil {
-		return nil, err
+	if cc.Origin == "cluster" {
+		// Get the in-cluster config
+		config, err = rest.InClusterConfig()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// look for kubeconfig in home if not set
+		if cc.Kubeconfig == "" {
+			if _, err := os.Stat(clientcmd.RecommendedHomeFile); err == nil {
+				cc.Kubeconfig = clientcmd.RecommendedHomeFile
+			}
+		}
+
+		config, err = clientcmd.BuildConfigFromFlags(cc.Master, cc.Kubeconfig)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	client, err := kubernetes.NewForConfig(config)
