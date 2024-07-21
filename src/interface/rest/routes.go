@@ -9,6 +9,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	log "github.com/wizenheimer/cascade/internal/logger"
+	"github.com/wizenheimer/cascade/internal/parser"
 	k8x "github.com/wizenheimer/cascade/service/kubernetes"
 	"go.uber.org/zap"
 )
@@ -96,7 +97,7 @@ func QuickStart(c echo.Context) error {
 	defer cancel()
 
 	// Parse Configs
-	cc, tc, rc, err := ParseConfigsFromContext(c)
+	cc, tc, rc, err := parser.ParseConfigsFromContext(c)
 	if err != nil {
 		// Parse the log
 		data, err := log.ParseLog("error", err.Error())

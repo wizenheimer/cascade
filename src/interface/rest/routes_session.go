@@ -10,6 +10,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	log "github.com/wizenheimer/cascade/internal/logger"
+	"github.com/wizenheimer/cascade/internal/parser"
 	k8x "github.com/wizenheimer/cascade/service/kubernetes"
 	"go.uber.org/zap"
 )
@@ -58,7 +59,7 @@ func (client *APIServer) CreateSession(c echo.Context) error {
 	}
 
 	// Parse cluster configs
-	cc, err := ParseClusterConfigFromContext(c)
+	cc, err := parser.ParseClusterConfigFromContext(c)
 	if err != nil {
 		// Parse the log
 		data, err := log.ParseLog("error", err.Error())
@@ -77,7 +78,7 @@ func (client *APIServer) CreateSession(c echo.Context) error {
 	}
 
 	// Parse the target and runtime config
-	tc, rc, err := ParseDBScenario(scenario)
+	tc, rc, err := parser.ParseDBScenario(scenario)
 	if err != nil {
 		// Parse the log
 		data, err := log.ParseLog("error", err.Error())

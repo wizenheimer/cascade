@@ -5,12 +5,14 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/wizenheimer/cascade/internal/config"
+	"github.com/wizenheimer/cascade/internal/parser"
 	"gopkg.in/yaml.v2"
 )
 
 func (client *APIServer) CreateScenario(c echo.Context) error {
 	// Create a Scenario using YAML
-	var config Config
+	var config config.Config
 
 	// Handle file upload
 	file, err := c.FormFile("config")
@@ -36,7 +38,7 @@ func (client *APIServer) CreateScenario(c echo.Context) error {
 	}
 
 	// Parse the Config
-	scenario, err := ParseYAMLConfigToScenario(&config)
+	scenario, err := parser.ParseYAMLConfigToScenario(&config)
 	if err != nil {
 		return err
 	}
@@ -94,14 +96,14 @@ func (client *APIServer) UpdateScenario(c echo.Context) error {
 		return err
 	}
 
-	var config Config
+	var config config.Config
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
 		return err
 	}
 
 	// Parse the Config
-	updatedScenario, err := ParseYAMLConfigToScenario(&config)
+	updatedScenario, err := parser.ParseYAMLConfigToScenario(&config)
 	if err != nil {
 		return err
 	}
